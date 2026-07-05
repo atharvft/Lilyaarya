@@ -15,6 +15,7 @@
 html, body {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background: #000;
     font-family: 'Inter', -apple-system, sans-serif;
@@ -25,6 +26,7 @@ html, body {
     position: relative;
     width: 100%;
     height: 100%;
+    min-height: 100dvh;
 }
 
 /* ---- Webcam Video ---- */
@@ -122,6 +124,49 @@ html, body {
     50% { opacity: 1; }
 }
 
+/* ---- Portrait Phone Guidance ---- */
+.orientation-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 120;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: max(24px, env(safe-area-inset-top)) 28px max(24px, env(safe-area-inset-bottom));
+    text-align: center;
+    background:
+        radial-gradient(ellipse at 50% 35%, rgba(255, 154, 86, 0.22), transparent 38%),
+        linear-gradient(180deg, rgba(9, 5, 11, 0.96), rgba(0, 0, 0, 0.98));
+    color: rgba(255, 232, 214, 0.95);
+}
+
+.orientation-symbol {
+    width: 72px;
+    height: 72px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 178, 115, 0.45);
+    border-radius: 50%;
+    color: rgba(255, 181, 103, 0.95);
+    font-size: 44px;
+    line-height: 1;
+    box-shadow: 0 0 32px rgba(255, 139, 80, 0.22);
+}
+
+.orientation-title {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.orientation-copy {
+    max-width: 300px;
+    color: rgba(255, 220, 198, 0.72);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
 /* ---- Instruction Toast ---- */
 .instructions {
     position: absolute;
@@ -155,6 +200,34 @@ html, body {
 .instructions span {
     color: rgba(255, 160, 200, 1);
     font-weight: 600;
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+    .orientation-hint {
+        display: flex;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+    .instructions {
+        bottom: max(12px, env(safe-area-inset-bottom));
+        max-width: min(720px, calc(100vw - 32px));
+        padding: 10px 16px;
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    .loading-flower {
+        margin-bottom: 18px;
+    }
+
+    .loading-text {
+        font-size: 13px;
+    }
+
+    .loading-subtext {
+        font-size: 11px;
+    }
 }
 
 /* ---- Vignette ---- */

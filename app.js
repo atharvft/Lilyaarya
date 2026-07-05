@@ -176,9 +176,17 @@ class FlowerBloomApp {
             height: 720,
         });
 
-        cam.start().then(() => {
-            setTimeout(() => this.loadingEl?.classList.add('hidden'), 600);
-        });
+        cam.start()
+            .then(() => {
+                setTimeout(() => this.loadingEl?.classList.add('hidden'), 600);
+            })
+            .catch(() => {
+                this.loadingEl?.classList.add('camera-error');
+                const loadingText = this.loadingEl?.querySelector('.loading-text');
+                const loadingSubtext = this.loadingEl?.querySelector('.loading-subtext');
+                if (loadingText) loadingText.textContent = 'Camera Permission Needed';
+                if (loadingSubtext) loadingSubtext.textContent = 'Allow camera access in your phone browser settings, then reload.';
+            });
     }
 
     // ---------------------------------------------------------
