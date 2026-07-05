@@ -436,6 +436,53 @@ class FlowerBloomApp {
         }
     }
 
+    drawEmergingPetals(stemPts, windAngle) {
+        const petals = [
+            { ratio: 0.24, side: -1, start: 0.16, size: 0.78, delay: 0.00 },
+            { ratio: 0.36, side: 1, start: 0.27, size: 0.86, delay: 0.08 },
+            { ratio: 0.50, side: -1, start: 0.39, size: 0.95, delay: 0.04 },
+            { ratio: 0.64, side: 1, start: 0.51, size: 0.82, delay: 0.12 },
+            { ratio: 0.78, side: -1, start: 0.64, size: 0.70, delay: 0.02 }
+        ];
+
+        for (let i = 0; i < petals.length; i++) {
+            const p = petals[i];
+            const progress = this.smoothStep((this.growth - p.start - p.delay) / 0.18);
+            if (progress <= 0) continue;
+
+            const idx = Math.floor(p.ratio * (stemPts.length - 1));
+            const pt = stemPts[idx];
+            const prevPt = stemPts[Math.max(0, idx - 1)] || pt;
+            const tangent = Math.atan2(pt.y - prevPt.y, pt.x - prevPt.x);
+            const sway = this.noise.get(this.time * 0.9 + i * 1.7, 6) * 0.12;
+            const angle = tangent + p.side * (1.05 + progress * 0.5) + sway + windAngle * 0.04;
+
+            this.drawEmergingLilyPetal(pt.x, pt.y, angle, p.size, progress);
+        }
+    }
+
+    drawEmergingLilyPetal(x, y, angle, size, progress) {
+        const ctx = this.ctx;
+        const ease = this.smoothStep(progress);
+        const length = 34 * size * (0.35 + ease * 0.75);
+        const width = 13 * size * (0.3 + ease * 0.8);
+        const push = 8 * size * ease;
+
+        ctx.save();
+        ctx.translate(x + Math.cos(angle) * push, y + Math.sin(angle) * push);
+        ctx.rotate(angle + Math.PI / 2);
+        ctx.globalAlpha = 0.15 + ease * 0.85;
+
+        this.drawLilyPetal(ctx, 0, length, width, 20, 86, 64, ease, 0.25);
+
+        ctx.restore();
+    }
+
+    smoothStep(value) {
+        const t = Math.min(1, Math.max(0, value));
+        return t * t * (3 - 2 * t);
+    }
+
     // ----- Flower Head (Lily facing upward) -----
     drawFlowerHead(cx, cy, bloom, windAngle, scale) {
         // Boost scale as it blooms to make it feel more dynamic and organic
@@ -780,6 +827,7 @@ class FlowerBloomApp {
             const stemData = this.drawStem(stemBaseX, stemBaseY, stemH, totalWind);
             const tip = stemData.tip;
             const pts = stemData.pts;
+            this.drawEmergingPetals(pts, totalWind);
 
             // Draw 4 branches and their sub-flowers
             const branchConfigs = [
