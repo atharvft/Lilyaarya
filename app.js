@@ -278,7 +278,7 @@ class FlowerBloomApp {
             const iy = indexTip.y * ch;
 
             const isLeft = handedness && handedness.label === 'Left';
-            const labelText = isLeft ? '✿ Left Hand: Bloom' : '🌱 Right Hand: Grow';
+            const labelText = isLeft ? '⚜ Left Hand: Lily Petals' : '🌿 Right Hand: Lily Stem';
             const glowColor = isLeft ? 'rgba(255, 80, 130, 0.85)' : 'rgba(56, 193, 114, 0.85)';
             const strokeStyle = isLeft ? '#ff5082' : '#38c172';
 
@@ -436,7 +436,7 @@ class FlowerBloomApp {
         }
     }
 
-    // ----- Flower Head (Tulip facing upward) -----
+    // ----- Flower Head (Lily facing upward) -----
     drawFlowerHead(cx, cy, bloom, windAngle, scale) {
         // Boost scale as it blooms to make it feel more dynamic and organic
         const bloomScaleFactor = 1.0 + bloom * 0.18;
@@ -459,26 +459,24 @@ class FlowerBloomApp {
             ctx.fill();
         }
 
-        // Base color definitions (tulip uses beautiful pink/coral/yellow tones)
-        const hue = 345; // Pink/crimson base
-        const sat = 85;
-        const light = 55;
+        // Base color definitions for a warm lily palette
+        const hue = 18; // coral / saffron base
+        const sat = 88;
+        const light = 60;
 
-        // --- Tulip Petal Layers ---
+        // --- Lily Petal Layers ---
         // Back/outer layer (drawn first)
-        // Center back, left back, right back
         const backPetals = [
-            { angle: 0, lengthMul: 1.0, widthMul: 0.4, hueOffset: 0, lightOffset: -4 },
-            { angle: -0.15 - bloom * 0.7, lengthMul: 0.95, widthMul: 0.38, hueOffset: 10, lightOffset: -2 },
-            { angle: 0.15 + bloom * 0.7, lengthMul: 0.95, widthMul: 0.38, hueOffset: 10, lightOffset: -2 }
+            { angle: -0.72 - bloom * 0.1, lengthMul: 1.05, widthMul: 0.38, hueOffset: 8, lightOffset: -4, curl: 0.18 },
+            { angle: 0, lengthMul: 1.12, widthMul: 0.42, hueOffset: 0, lightOffset: 2, curl: 0.12 },
+            { angle: 0.72 + bloom * 0.1, lengthMul: 1.05, widthMul: 0.38, hueOffset: -4, lightOffset: -2, curl: 0.18 }
         ];
 
         // Front/inner layer (drawn on top)
-        // Left front, right front, center front
         const frontPetals = [
-            { angle: -0.05 - bloom * 0.55, lengthMul: 0.9, widthMul: 0.35, hueOffset: 5, lightOffset: 2 },
-            { angle: 0.05 + bloom * 0.55, lengthMul: 0.9, widthMul: 0.35, hueOffset: 5, lightOffset: 2 },
-            { angle: 0, lengthMul: 0.85, widthMul: 0.32, hueOffset: -5, lightOffset: 5 }
+            { angle: -0.38 - bloom * 0.12, lengthMul: 0.95, widthMul: 0.33, hueOffset: 5, lightOffset: 3, curl: 0.24 },
+            { angle: 0.38 + bloom * 0.12, lengthMul: 0.95, widthMul: 0.33, hueOffset: 4, lightOffset: 4, curl: 0.24 },
+            { angle: 0, lengthMul: 0.82, widthMul: 0.28, hueOffset: -3, lightOffset: 6, curl: 0.1 }
         ];
 
         const maxPetalLen = 85 * adjustedScale;
@@ -490,29 +488,29 @@ class FlowerBloomApp {
             const len = maxPetalLen * p.lengthMul;
             const wid = maxPetalLen * p.widthMul * (0.6 + bloom * 0.8);
 
-            this.drawTulipPetal(ctx, finalAngle, len, wid, hue + p.hueOffset, sat, light + p.lightOffset, bloom);
+            this.drawLilyPetal(ctx, finalAngle, len, wid, hue + p.hueOffset, sat, light + p.lightOffset, bloom, p.curl);
         }
 
         // Draw center details (stamen/pistil) if open
         if (bloom > 0.15) {
             ctx.save();
             ctx.shadowBlur = 0;
-            // Center pistil (greenish yellow)
-            ctx.fillStyle = `rgba(180, 220, 100, ${bloom})`;
+            // Center pistil / stigma cluster
+            ctx.fillStyle = `rgba(210, 210, 120, ${bloom})`;
             ctx.beginPath();
             ctx.arc(0, -maxPetalLen * 0.2, 5 * adjustedScale, 0, Math.PI * 2);
             ctx.fill();
 
             // Stamens around pistil
-            const stamenCount = 4;
+            const stamenCount = 6;
             for (let i = 0; i < stamenCount; i++) {
                 const a = (i / stamenCount) * Math.PI * 2 + this.time * 0.5;
-                const r = 8 * adjustedScale * bloom;
+                const r = 10 * adjustedScale * bloom;
                 const sx = Math.cos(a) * r;
                 const sy = -maxPetalLen * 0.2 + Math.sin(a) * r;
 
                 // filament
-                ctx.strokeStyle = `rgba(220, 200, 80, ${bloom * 0.7})`;
+                ctx.strokeStyle = `rgba(235, 215, 120, ${bloom * 0.75})`;
                 ctx.lineWidth = 1.5 * adjustedScale;
                 ctx.beginPath();
                 ctx.moveTo(0, -maxPetalLen * 0.1);
@@ -520,7 +518,7 @@ class FlowerBloomApp {
                 ctx.stroke();
 
                 // anther
-                ctx.fillStyle = `rgba(255, 235, 120, ${bloom})`;
+                ctx.fillStyle = `rgba(255, 240, 160, ${bloom})`;
                 ctx.beginPath();
                 ctx.arc(sx, sy, 2.5 * adjustedScale, 0, Math.PI * 2);
                 ctx.fill();
@@ -535,50 +533,56 @@ class FlowerBloomApp {
             const len = maxPetalLen * p.lengthMul;
             const wid = maxPetalLen * p.widthMul * (0.65 + bloom * 0.75);
 
-            this.drawTulipPetal(ctx, finalAngle, len, wid, hue + p.hueOffset, sat, light + p.lightOffset, bloom);
+            this.drawLilyPetal(ctx, finalAngle, len, wid, hue + p.hueOffset, sat, light + p.lightOffset, bloom, p.curl);
         }
 
         ctx.restore();
     }
 
-    drawTulipPetal(ctx, angle, length, width, hue, sat, light, bloom) {
+    drawLilyPetal(ctx, angle, length, width, hue, sat, light, bloom, curl = 0.2) {
         ctx.save();
         ctx.rotate(angle);
 
-        // Gradient from base (darker/coral) to top (bright pink/yellow)
+        // Gradient from base (darker) to tip (brighter)
         const grad = ctx.createLinearGradient(0, 0, 0, -length);
-        grad.addColorStop(0, `hsla(${hue + 25}, ${sat}%, ${light - 8}%, 0.9)`);
-        grad.addColorStop(0.4, `hsla(${hue}, ${sat}%, ${light}%, 0.85)`);
-        grad.addColorStop(0.85, `hsla(${hue - 10}, ${sat + 10}%, ${light + 10}%, 0.85)`);
-        grad.addColorStop(1, `hsla(${hue - 20}, ${sat + 15}%, ${light + 18}%, 0.95)`);
+        grad.addColorStop(0, `hsla(${hue + 10}, ${sat}%, ${light - 16}%, 0.92)`);
+        grad.addColorStop(0.45, `hsla(${hue}, ${sat}%, ${light}%, 0.88)`);
+        grad.addColorStop(0.82, `hsla(${hue - 6}, ${sat + 6}%, ${light + 10}%, 0.88)`);
+        grad.addColorStop(1, `hsla(${hue - 12}, ${sat + 10}%, ${light + 18}%, 0.96)`);
 
         ctx.fillStyle = grad;
         // Outer glow
-        ctx.shadowBlur = 12 + bloom * 18;
-        ctx.shadowColor = `hsla(${hue}, 100%, 65%, ${0.25 + bloom * 0.4})`;
+        ctx.shadowBlur = 14 + bloom * 20;
+        ctx.shadowColor = `hsla(${hue}, 100%, 70%, ${0.22 + bloom * 0.42})`;
 
-        // Tulip petal shape pointing straight up (-Y direction)
+        // Lily petal shape: narrow base, flared shoulders, pointed tip
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.bezierCurveTo(
-            -width * 1.1, -length * 0.3,
-            -width * 0.9, -length * 0.85,
+            -width * (0.28 + curl), -length * 0.22,
+            -width * (0.95 + curl * 0.4), -length * 0.6,
+            -width * 0.48, -length * 0.96
+        );
+        ctx.bezierCurveTo(
+            -width * 0.2, -length * 1.03,
+            width * 0.2, -length * 1.03,
             0, -length
         );
         ctx.bezierCurveTo(
-            width * 0.9, -length * 0.85,
-            width * 1.1, -length * 0.3,
+            width * 0.48, -length * 0.96,
+            width * (0.95 + curl * 0.4), -length * 0.6,
+            width * (0.28 + curl), -length * 0.22,
             0, 0
         );
         ctx.fill();
 
         // Subtle petal vein
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = `hsla(${hue + 15}, ${sat}%, ${light + 15}%, 0.25)`;
+        ctx.strokeStyle = `hsla(${hue + 12}, ${sat}%, ${light + 18}%, 0.28)`;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, -length * 0.85);
+        ctx.quadraticCurveTo(width * 0.14, -length * 0.58, 0, -length);
         ctx.stroke();
 
         ctx.restore();
@@ -687,19 +691,19 @@ class FlowerBloomApp {
         // Background pill
         ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
         ctx.beginPath();
-        ctx.roundRect(px - 10, py - 14, 138, 78, 10);
+        ctx.roundRect(px - 10, py - 14, 156, 78, 10);
         ctx.fill();
 
-        // Bloom
+        // Lily petals
         ctx.fillStyle = 'rgba(255, 170, 200, 0.95)';
         ctx.shadowBlur = 6;
         ctx.shadowColor = 'rgba(255, 100, 150, 0.4)';
-        ctx.fillText(`Bloom: ${this.bloom.toFixed(2)}`, px, py + 6);
+        ctx.fillText(`Lily Petals: ${this.bloom.toFixed(2)}`, px, py + 6);
 
-        // Growth
+        // Lily stem
         ctx.fillStyle = 'rgba(140, 255, 140, 0.95)';
         ctx.shadowColor = 'rgba(80, 255, 80, 0.4)';
-        ctx.fillText(`Grow: ${this.growth.toFixed(2)}`, px, py + 28);
+        ctx.fillText(`Lily Stem: ${this.growth.toFixed(2)}`, px, py + 28);
 
         // Wind
         ctx.fillStyle = 'rgba(140, 200, 255, 0.95)';
